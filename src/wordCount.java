@@ -27,15 +27,14 @@ public class wordCount {
 				if(flag[4]==1) {
 					File f = new File("");
 					String nowpath=f.getAbsolutePath();
-					System.out.println(nowpath);
 					find(nowpath);
 					for(String t:source) {
 						sourceFilePath = t;
-//						doOrder();
+						doOrder();
 					}
 				}
-//				else 
-//					doOrder();
+				else 
+					doOrder();
 			}
 			
 			private void doPar(String[] args) {//处理参数
@@ -202,10 +201,11 @@ public class wordCount {
 			    File f=new File(nowpath+"\\");
 			    File nowf=new File("");
 			    File filelist[]=f.listFiles();
-			    if(filelist==null) {System.out.println("目录为空");return;}
+			    if(filelist==null)  {System.out.println("目录为空"); return;}
 			    for(int i=0;i<filelist.length;i++) {
 			        nowf = filelist[i];
 			        if (nowf.isFile() && nowf.getName().endsWith(".c")) {
+//			        	if(!source.contains(nowf.getAbsolutePath()))
 			            source.addElement(nowf.getAbsolutePath());
 			        } else if (nowf.isDirectory()) {
 			            find(nowf.getAbsolutePath());//递归
