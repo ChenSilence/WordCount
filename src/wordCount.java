@@ -6,13 +6,14 @@ import java.util.Scanner;
 
 public class wordCount {
 	
-			private char[] order = {'c','w','l','o'}; 
+			private char[] order = {'c','w','l','o','s','a','e'}; 
 			private int[]  flag=new int[10];
-			private char[] div = {' ',','};
-			private String sourceFilePath,outFilePath;
+			private String sourceFilePath,outFilePath,stopFilePath;
+			private boolean stopFlag=false;
+			private boolean outFlag=false;
 			
 			public static void main(String[] args) throws IOException {
-				args="-l -w src/test2.c -o result2.txt".split(" ");
+				args="-l -w src/test2.c -e stop.txt -o result3.txt".split(" ");
 				new wordCount().entrance(args);
 			}
 			
@@ -22,7 +23,7 @@ public class wordCount {
 			}
 			
 			private void doPar(String[] args) {//处理参数
-					boolean outFlag=false;
+					
 					for(int i = 0;i < args.length;i++) {
 					String nowPar = args[i];
 					
@@ -35,6 +36,10 @@ public class wordCount {
 								flag[3]=1;
 								outFlag=true;
 								break;
+							case 'e':
+								flag[6]=1;
+								stopFlag=true;
+								break;
 							default:break;
 							}
 					}
@@ -42,7 +47,9 @@ public class wordCount {
 					else {//如果参数是文件路径
 						if(outFlag) {
 							outFilePath =nowPar;
-							outFlag = false;
+						}
+						else if(stopFlag) {
+							stopFilePath = nowPar;
 						}
 						else {
 							sourceFilePath = nowPar;
@@ -80,7 +87,14 @@ public class wordCount {
 			            fout.close();
 			        }
 					else {
-						FileWriter fout = new FileWriter("result2.txt");
+						FileWriter fout;
+						
+						if(!outFlag) {//不指定输出文件
+						 fout = new FileWriter("result.txt");
+						}
+						else //指定输出文件
+							fout = new FileWriter(outFilePath);
+						
 			            try {
 							fout.write(result.toString());
 						} catch (IOException e) {
@@ -104,13 +118,32 @@ public class wordCount {
 			public int cWordNumber(String path) {
 				String text = readFile(sourceFilePath);
 				 String s[] = text.split(" |,|\\n");//split()里面是正则表达式
-				return s.length;
+				 int wn = s.length;
+				if(stopFlag) {
+					return wn-doStop(s);
+				}
+				else
+					return s.length;
 			}
 			
 			public int cLineNumber(String path) {
 				String text = readFile(sourceFilePath);
 				 String s[] = text.split("\\n");//
 				return s.length;
+			}
+			
+			public int doStop(String[] s) {//与停用词表比对，统计出不该计算的单词数
+				String stoplist = readFile(stopFilePath);
+				 String slist[] = stoplist.split(" ");
+				int same=0;
+				for(int i=0;i<s.length;i++) {
+					for(int j=0;j<slist.length;j++) {
+						if (s[i].equals(slist[j])){
+							same++;
+						}
+					}
+				}
+				return same;
 			}
 }
 
