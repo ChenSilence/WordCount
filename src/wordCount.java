@@ -12,7 +12,7 @@ public class wordCount {
 			private String sourceFilePath,outFilePath;
 			
 			public static void main(String[] args) throws IOException {
-				args="-c -l src/test2.c -o result3.txt".split(" ");
+				args="-l -w src/test2.c -o result2.txt".split(" ");
 				new wordCount().entrance(args);
 			}
 			
