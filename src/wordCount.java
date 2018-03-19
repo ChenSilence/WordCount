@@ -13,7 +13,7 @@ public class wordCount {
 			private boolean outFlag=false;
 			
 			public static void main(String[] args) throws IOException {
-				args="-l -w src/test2.c -e stop.txt -o result3.txt".split(" ");
+				args="-c -w -l test4.c -o result4.txt -e stop.txt".split(" ");
 				new wordCount().entrance(args);
 			}
 			
@@ -35,26 +35,29 @@ public class wordCount {
 							case 'o':
 								flag[3]=1;
 								outFlag=true;
+								outFilePath =args[++i];
 								break;
 							case 'e':
 								flag[6]=1;
 								stopFlag=true;
+								stopFilePath =args[++i];
 								break;
 							default:break;
 							}
 					}
 					
-					else {//如果参数是文件路径
-						if(outFlag) {
-							outFilePath =nowPar;
-						}
-						else if(stopFlag) {
-							stopFilePath = nowPar;
-						}
-						else {
-							sourceFilePath = nowPar;
-						}
-					}
+					else sourceFilePath = nowPar;//当参数为路径而前面又无命令符说明时，判定为输入文件路径
+//					else {
+//						if(outFlag) {
+//							outFilePath =nowPar;
+//						}
+//						else if(stopFlag) {
+//							stopFilePath = nowPar;
+//						}
+//						else {
+//							sourceFilePath = nowPar;
+//						}
+//					}
 				}
 			 }
 			
@@ -62,17 +65,17 @@ public class wordCount {
 					StringBuilder result = new StringBuilder();
 					if(flag[0]==1)
 					{
-						String text = readFile(sourceFilePath);
-						 result.append(sourceFilePath).append(" 字符数: ").append(text.length()).append("\r\n");
+						int charNum = cCharNumber();
+						 result.append(sourceFilePath).append(" 字符数: ").append(charNum).append("\r\n");
 					}
 					if(flag[1]==1)
 					{
-						int wordNum = cWordNumber(sourceFilePath);
+						int wordNum = cWordNumber();
 						result.append(sourceFilePath).append(" 单词数: ").append(wordNum).append("\r\n");
 					}
 					if(flag[2]==1)
 					{
-						int lineNum = cLineNumber(sourceFilePath);
+						int lineNum = cLineNumber();
 						result.append(sourceFilePath).append(" 行数: ").append(lineNum).append("\r\n");
 					}
 					
@@ -115,26 +118,38 @@ public class wordCount {
 		        }
 		    }
 			
-			public int cWordNumber(String path) {
+			public int cCharNumber() {
 				String text = readFile(sourceFilePath);
-				 String s[] = text.split(" |,|\\n");//split()里面是正则表达式
-				 int wn = s.length;
-				if(stopFlag) {
-					return wn-doStop(s);
+				int num_r=0;
+				for(int k=0;k<text.length();k++) {
+					if (text.charAt(k)=='\r') {
+						num_r++;
+					}
 				}
-				else
+				return text.length()-num_r;
+			}
+			
+			
+			public int cWordNumber() {
+				String text = readFile(sourceFilePath);
+				 String s[] = text.split("\\s+|,|\n");//split()里面是正则表达式
+				 int wn = s.length;
+//				if(stopFlag) {
+//					return wn-doStop(s);
+//				}
+//				else
 					return s.length;
 			}
 			
-			public int cLineNumber(String path) {
+			public int cLineNumber() {
 				String text = readFile(sourceFilePath);
-				 String s[] = text.split("\\n");//
+				 String s[] = text.split("\n");//
 				return s.length;
 			}
 			
 			public int doStop(String[] s) {//与停用词表比对，统计出不该计算的单词数
 				String stoplist = readFile(stopFilePath);
-				 String slist[] = stoplist.split(" ");
+				 String slist[] = stoplist.split(" +");
 				int same=0;
 				for(int i=0;i<s.length;i++) {
 					for(int j=0;j<slist.length;j++) {
