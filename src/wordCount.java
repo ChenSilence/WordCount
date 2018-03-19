@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class wordCount {
 	
@@ -11,9 +12,10 @@ public class wordCount {
 			private String sourceFilePath,outFilePath,stopFilePath;
 			private boolean stopFlag=false;
 			private boolean outFlag=false;
+			private boolean aFlag=false;
 			
 			public static void main(String[] args) throws IOException {
-				args="-c -w -l test4.c -o result4.txt -e stop.txt".split(" ");
+				args="-c -w -a test5.c -o result5.txt".split(" ");
 				new wordCount().entrance(args);
 			}
 			
@@ -36,6 +38,10 @@ public class wordCount {
 								flag[3]=1;
 								outFlag=true;
 								outFilePath =args[++i];
+								break;
+							case 'a':
+								flag[5]=1;
+								aFlag=true;
 								break;
 							case 'e':
 								flag[6]=1;
@@ -78,18 +84,13 @@ public class wordCount {
 						int lineNum = cLineNumber();
 						result.append(sourceFilePath).append(" 行数: ").append(lineNum).append("\r\n");
 					}
-					
-					if(flag[3]==1)
+					if(aFlag)
 					{
-						FileWriter fout = new FileWriter(outFilePath);
-			            try {
-							fout.write(result.toString());
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-			            fout.close();
-			        }
-					else {
+						String lineInfo = aCount();
+						result.append(sourceFilePath).append(lineInfo).append("\r\n");
+					}
+					
+				
 						FileWriter fout;
 						
 						if(!outFlag) {//不指定输出文件
@@ -104,7 +105,7 @@ public class wordCount {
 							e.printStackTrace();
 						}
 			            fout.close();
-					}
+					
 			}
 				
 			
@@ -134,17 +135,35 @@ public class wordCount {
 				String text = readFile(sourceFilePath);
 				 String s[] = text.split("\\s+|,|\n");//split()里面是正则表达式
 				 int wn = s.length;
-//				if(stopFlag) {
-//					return wn-doStop(s);
-//				}
-//				else
+				if(stopFlag) {
+					return wn-doStop(s);
+				}
+				else
 					return s.length;
 			}
 			
-			public int cLineNumber() {
+			public int cLineNumber() {//统计总行数
 				String text = readFile(sourceFilePath);
 				 String s[] = text.split("\n");//
 				return s.length;
+			}
+			
+			public String aCount() {//统计各行数
+				String all = null;
+				String text = readFile(sourceFilePath);
+				String s[] = text.split("\\r\\n");
+				int noteline,spaceline,codeline;
+				noteline=spaceline=codeline=0;
+				 for(String tmp:s) {
+					 if(Pattern.matches("\\s*.?\\s*//.*|//.*", tmp))
+					 noteline++;
+					 else if(Pattern.matches("\\s*.?\\s*", tmp) || s==null)//空行可能有一个字符，或者本身为空串
+					spaceline++;
+					 else 
+					codeline++;
+				 }
+				all=" 代码行/空行/注释行:"+codeline+"/"+spaceline+"/"+noteline;
+				return all;
 			}
 			
 			public int doStop(String[] s) {//与停用词表比对，统计出不该计算的单词数
