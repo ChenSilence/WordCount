@@ -1,8 +1,10 @@
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Scanner;
+import java.util.Vector;
 import java.util.regex.Pattern;
 
 public class wordCount {
@@ -13,15 +15,27 @@ public class wordCount {
 			private boolean stopFlag=false;
 			private boolean outFlag=false;
 			private boolean aFlag=false;
+			private static Vector<String> source = new Vector<String>() ;
 			
 			public static void main(String[] args) throws IOException {
-				args="-c -w -a test5.c -o result5.txt".split(" ");
+				args="-l -w -s *.c -o result6.txt".split(" ");
 				new wordCount().entrance(args);
 			}
 			
 			private void entrance(String[] args) throws IOException {//入口程序
 				doPar(args);
-				doOrder();
+				if(flag[4]==1) {
+					File f = new File("");
+					String nowpath=f.getAbsolutePath();
+					System.out.println(nowpath);
+					find(nowpath);
+					for(String t:source) {
+						sourceFilePath = t;
+//						doOrder();
+					}
+				}
+//				else 
+//					doOrder();
 			}
 			
 			private void doPar(String[] args) {//处理参数
@@ -39,6 +53,9 @@ public class wordCount {
 								outFlag=true;
 								outFilePath =args[++i];
 								break;
+							case 's':
+								flag[4]=1;
+								break;
 							case 'a':
 								flag[5]=1;
 								aFlag=true;
@@ -48,6 +65,7 @@ public class wordCount {
 								stopFlag=true;
 								stopFilePath =args[++i];
 								break;
+						
 							default:break;
 							}
 					}
@@ -94,10 +112,10 @@ public class wordCount {
 						FileWriter fout;
 						
 						if(!outFlag) {//不指定输出文件
-						 fout = new FileWriter("result.txt");
+						 fout = new FileWriter("result.txt",true);
 						}
 						else //指定输出文件
-							fout = new FileWriter(outFilePath);
+							fout = new FileWriter(outFilePath,true);
 						
 			            try {
 							fout.write(result.toString());
@@ -179,5 +197,20 @@ public class wordCount {
 				}
 				return same;
 			}
-}
+			
+			public static void find(String nowpath){
+			    File f=new File(nowpath+"\\");
+			    File nowf=new File("");
+			    File filelist[]=f.listFiles();
+			    if(filelist==null) {System.out.println("目录为空");return;}
+			    for(int i=0;i<filelist.length;i++) {
+			        nowf = filelist[i];
+			        if (nowf.isFile() && nowf.getName().endsWith(".c")) {
+			            source.addElement(nowf.getAbsolutePath());
+			        } else if (nowf.isDirectory()) {
+			            find(nowf.getAbsolutePath());//递归
+			        }
 
+			    }
+	   }
+}
