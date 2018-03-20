@@ -1,0 +1,2 @@
+testtest.c 单词数: 6
+testtest.c 行数: 5
